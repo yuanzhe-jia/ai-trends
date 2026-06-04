@@ -35,8 +35,8 @@ npm start
 
 ```
 AI-Trends/
-├── app/              # Frontend (HTML/CSS/JS)
 ├── src/
+│   ├── app/          # Frontend (HTML/CSS/JS)
 │   ├── config/       # Configuration
 │   ├── controllers/  # Route handlers
 │   ├── database/     # DB connection & schema
