@@ -43,12 +43,6 @@ AI-Trends/
 │   ├── models/       # Database models
 │   ├── routes/       # API routes
 │   ├── services/     # Business logic (RSS, trends)
-│   ├── utils/        # Helpers, logger
-│   └── server.js     # Express server
-├── data/             # SQLite database (gitignored)
-├── .gitignore
-├── LICENSE.txt
-├── README.md
-├── package.json
-└── package-lock.json
+│   └── utils/        # Helpers, logger
+└── data/             # SQLite database (gitignored)
 ```
