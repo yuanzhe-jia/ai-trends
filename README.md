@@ -22,6 +22,24 @@ npm start
 # Visit http://localhost:3000
 ```
 
+## LLM Keyword Extraction (Optional)
+
+The project supports AI-powered keyword extraction using Doubao (豆包) LLM API.
+
+### Setup
+
+1. Get your API key from [Volcengine Console](https://console.volcengine.com/ark)
+2. Copy `.env.example` to `.env`:
+   ```bash
+   cp .env.example .env
+   ```
+3. Add your API key to `.env`:
+   ```
+   DOUBAO_API_KEY=your-api-key-here
+   ```
+
+If no API key is configured, the system falls back to a predefined keyword library.
+
 ## API Endpoints
 
 | Method | Endpoint | Description |

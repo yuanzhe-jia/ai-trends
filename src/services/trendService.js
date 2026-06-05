@@ -1,8 +1,9 @@
 const Article = require('../models/article');
 const Trend = require('../models/trend');
+const llmService = require('./llmService');
 const logger = require('../utils/logger');
 
-// AI相关关键词库（按类别分组）
+// AI相关关键词库（按类别分组）- 作为 fallback
 const aiKeywords = [
   // 技术概念
   'GPT', 'LLM', '大模型', '人工智能', '机器学习', '深度学习',
@@ -23,7 +24,7 @@ const aiKeywords = [
   '智能助手', '聊天机器人', '自动驾驶', '机器人', 'AI安全', '伦理',
 ];
 
-// 统计每个关键词在标题中出现的文章数
+// 使用预定义关键词库统计每个关键词在标题中出现的文章数
 const countArticlesWithKeyword = async () => {
   const articles = await Article.findAll();
   
@@ -37,7 +38,6 @@ const countArticlesWithKeyword = async () => {
   aiKeywords.forEach((keyword) => {
     const pattern = new RegExp(keyword, 'i');
     const count = articles.filter((article) => {
-      // 只在标题中匹配
       const title = article.title || '';
       return pattern.test(title);
     }).length;
@@ -50,9 +50,28 @@ const countArticlesWithKeyword = async () => {
   return keywordCounts;
 };
 
+// 使用 LLM 从文章中提取关键词
+const countArticlesWithLLM = async () => {
+  const articles = await Article.findAll();
+  
+  if (articles.length === 0) {
+    logger.warn('没有文章可分析', 'TREND');
+    return {};
+  }
+  
+  return await llmService.extractKeywordsFromArticles(articles);
+};
+
 const analyzeTrendsFromArticles = async () => {
   try {
-    const keywordCounts = await countArticlesWithKeyword();
+    // 优先使用 LLM 提取关键词
+    let keywordCounts = await countArticlesWithLLM();
+    
+    // 如果 LLM 未能提取到关键词，使用预定义关键词库作为 fallback
+    if (Object.keys(keywordCounts).length === 0) {
+      logger.info('LLM 未提取到关键词，使用预定义关键词库', 'TREND');
+      keywordCounts = await countArticlesWithKeyword();
+    }
     
     const sortedKeywords = Object.entries(keywordCounts)
       .sort((a, b) => b[1] - a[1])
