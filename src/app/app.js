@@ -4,6 +4,20 @@ let selectedKeyword = null;
 let isLoading = false;
 let currentTrends = [];
 
+// 获取最近有数据的日期：优先昨天，没有则找最近一天
+let cachedLatestDate = null;
+const getLatestDateWithData = async () => {
+  // 如果有缓存的日期（从趋势数据中获取）
+  if (cachedLatestDate) {
+    return cachedLatestDate;
+  }
+  
+  // 默认返回昨天
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  return yesterday.toISOString().split('T')[0];
+};
+
 const fetchData = async (endpoint) => {
   try {
     const response = await fetch(`${API_BASE}${endpoint}`);
@@ -57,14 +71,8 @@ const renderHeatmap = (trends) => {
 
   if (!Array.isArray(trends) || trends.length === 0) {
     container.innerHTML = `
-      <div class="text-gray-400 text-center py-12">
-        <div class="flex flex-col items-center gap-3">
-          <svg class="w-12 h-12 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
-          </svg>
-          <span>暂无趋势数据</span>
-          <span class="text-xs text-gray-500">数据抓取中，请稍后刷新</span>
-        </div>
+      <div class="w-full h-[80px] flex items-center justify-center">
+        <span class="text-gray-400">暂无关键词</span>
       </div>
     `;
     return;
@@ -76,9 +84,9 @@ const renderHeatmap = (trends) => {
   
   const avgCount = sortedTrends.reduce((sum, t) => sum + t.total_count, 0) / sortedTrends.length;
   
-  const hotKeywords = sortedTrends.filter(t => t.total_count > avgCount * 1.5);
-  const midKeywords = sortedTrends.filter(t => t.total_count <= avgCount * 1.5 && t.total_count >= avgCount * 0.7);
-  const coldKeywords = sortedTrends.filter(t => t.total_count < avgCount * 0.7);
+  // 只保留热门和探索两个分组
+  const hotKeywords = sortedTrends.filter(t => t.total_count >= avgCount);
+  const coldKeywords = sortedTrends.filter(t => t.total_count < avgCount);
 
   const renderKeywordGroup = (keywords, label, delayOffset = 0) => {
     if (keywords.length === 0) return '';
@@ -86,7 +94,7 @@ const renderHeatmap = (trends) => {
     return `
       <div class="w-full" data-group="${label}">
         <div class="flex items-center gap-2 mb-2">
-          <span class="w-2 h-2 rounded-full ${label === '热门' ? 'bg-pink-500' : label === '关注' ? 'bg-purple-400' : 'bg-gray-500'}"></span>
+          <span class="w-2 h-2 rounded-full ${label === '热门' ? 'bg-pink-500' : 'bg-gray-500'}"></span>
           <span class="text-xs text-gray-400 font-medium">${label}</span>
           <span class="text-xs text-gray-500">(${keywords.length})</span>
         </div>
@@ -117,8 +125,7 @@ const renderHeatmap = (trends) => {
   container.innerHTML = `
     <div class="space-y-4">
       ${renderKeywordGroup(hotKeywords, '热门', 0)}
-      ${renderKeywordGroup(midKeywords, '关注', hotKeywords.length)}
-      ${renderKeywordGroup(coldKeywords, '探索', hotKeywords.length + midKeywords.length)}
+      ${renderKeywordGroup(coldKeywords, '探索', hotKeywords.length)}
     </div>
   `;
 
@@ -238,9 +245,12 @@ const renderTrendHistory = (keyword, history) => {
     return;
   }
 
-  // 生成最近30天的完整日期范围
-  const today = new Date();
-  const thirtyDaysAgo = new Date(today);
+  // 生成最近30天的完整日期范围（基于最新数据日期，而不是今天）
+  const latestDateInHistory = history.length > 0 
+    ? new Date(history[history.length - 1].date)  // 最后一个是最新的
+    : new Date();
+  
+  const thirtyDaysAgo = new Date(latestDateInHistory);
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 29);
   
   const dateRange = [];
@@ -262,6 +272,10 @@ const renderTrendHistory = (keyword, history) => {
     return `${date.getMonth() + 1}/${date.getDate()}`;
   });
   const data = dateRange.map(d => historyMap.get(d) || 0);
+  // 使用所有关键词中的最大热度值作为Y轴上限，确保所有趋势图刻度一致
+  const globalMaxValue = currentTrends.length > 0 
+    ? Math.max(...currentTrends.map(t => t.total_count))
+    : Math.max(...data, 1);
   
   container.innerHTML = `
     <div class="mb-4">
@@ -343,6 +357,7 @@ const renderTrendHistory = (keyword, history) => {
         },
         y: {
           beginAtZero: true,
+          max: globalMaxValue,
           grid: {
             color: 'rgba(255, 255, 255, 0.05)',
           },
@@ -368,15 +383,35 @@ const selectKeyword = async (keyword) => {
   try {
     selectedKeyword = selectedKeyword === keyword ? null : keyword;
     
-    const [articles, history] = await Promise.all([
-      fetchData(selectedKeyword 
-        ? `/articles?keyword=${encodeURIComponent(selectedKeyword)}&limit=30`
-        : '/articles?limit=30'
-      ),
-      selectedKeyword 
-        ? fetchData(`/trends/${encodeURIComponent(selectedKeyword)}/history?days=30`)
-        : []
-    ]);
+    // 获取日期
+    let dateToUse = cachedLatestDate;
+    if (!dateToUse && currentTrends.length > 0) {
+      dateToUse = currentTrends[0].date;
+    }
+    if (!dateToUse) {
+      dateToUse = await getLatestDateWithData();
+    }
+    
+    let articles, history;
+    
+    if (selectedKeyword) {
+      // 选择了关键词：只返回标题中包含该关键词的文章
+      [articles, history] = await Promise.all([
+        fetchData(`/articles?keyword=${encodeURIComponent(selectedKeyword)}&date=${dateToUse}&limit=30`),
+        fetchData(`/trends/${encodeURIComponent(selectedKeyword)}/history?days=30`)
+      ]);
+    } else {
+      // 未选择关键词：返回标题中包含任意关键词的文章
+      const allArticles = await fetchData(`/articles?date=${dateToUse}&limit=100`);
+      const keywords = currentTrends.map(t => t.keyword);
+      articles = allArticles.filter(article => {
+        return keywords.some(keyword => {
+          const pattern = new RegExp(keyword, 'i');
+          return pattern.test(article.title);
+        });
+      });
+      history = [];
+    }
     
     updateHeatmapSelection();
     renderNewsList(articles);
@@ -440,13 +475,39 @@ const clearFilter = () => {
 
 const init = async () => {
   try {
-    const [trends, articles] = await Promise.all([
-      fetchData('/trends?days=7'),
-      fetchData('/articles?limit=30')
-    ]);
+    // 先获取趋势数据，从中提取日期
+    const trends = await fetchData('/trends?days=7');
+    
+    // 从趋势数据中获取日期（取第一个趋势的日期）
+    let dateToUse;
+    if (trends.length > 0) {
+      dateToUse = trends[0].date;
+      cachedLatestDate = dateToUse;
+    } else {
+      dateToUse = await getLatestDateWithData();
+    }
+    
+    // 更新页面上的日期显示
+    const updateDateEl = document.getElementById('update-date');
+    if (updateDateEl && dateToUse) {
+      const date = new Date(dateToUse);
+      updateDateEl.textContent = `${date.getMonth() + 1}月${date.getDate()}日`;
+    }
+    
+    // 用这个日期去获取文章
+    const articles = await fetchData(`/articles?date=${dateToUse}&limit=100`);
+    
+    // 过滤文章：只保留标题中包含任意关键词的文章
+    const keywords = trends.map(t => t.keyword);
+    const filteredArticles = articles.filter(article => {
+      return keywords.some(keyword => {
+        const pattern = new RegExp(keyword, 'i');
+        return pattern.test(article.title);
+      });
+    });
 
     renderHeatmap(trends);
-    renderNewsList(articles);
+    renderNewsList(filteredArticles);
     renderTrendHistory(null, []);
     updateSelectedKeywordDisplay();
     updateClearButton();

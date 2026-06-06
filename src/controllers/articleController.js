@@ -4,10 +4,11 @@ const logger = require('../utils/logger');
 const articleController = {
   getAllArticles: async (req, res) => {
     try {
-      const { keyword, limit } = req.query;
+      const { keyword, limit, date } = req.query;
       const options = {
         limit: parseInt(limit) || 50,
         keyword: keyword || undefined,
+        date: date || undefined,
       };
       
       const articles = await Article.findAll(options);

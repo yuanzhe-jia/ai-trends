@@ -4,8 +4,8 @@ const logger = require('../utils/logger');
 const trendController = {
   getRecentTrends: async (req, res) => {
     try {
-      const { days } = req.query;
-      const trends = await trendService.getRecentTrends(parseInt(days) || 7);
+      // 仅获取趋势数据，不自动更新（按需更新由前端手动触发）
+      const trends = await trendService.getRecentTrends(7);
       
       res.json({
         success: true,
@@ -41,7 +41,9 @@ const trendController = {
 
   updateTrends: async (req, res) => {
     try {
-      const trends = await trendService.updateTrends();
+      // 从查询参数中获取日期，如果没有则使用默认值（昨天）
+      const date = req.query.date || null;
+      const trends = await trendService.updateTrends(date);
       
       res.json({
         success: true,

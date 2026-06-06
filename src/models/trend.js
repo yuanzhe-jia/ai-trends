@@ -24,25 +24,58 @@ const Trend = {
 
   getRecentTrends: (days = 7) => {
     return new Promise((resolve, reject) => {
-      const query = `
-        WITH LatestTrends AS (
-          SELECT keyword, count, date,
-            ROW_NUMBER() OVER (PARTITION BY keyword ORDER BY date DESC) as rn
-          FROM trends
-          WHERE date >= date('now', '-${days} days')
-        )
+      // 先尝试查询昨天的数据
+      const queryYesterday = `
         SELECT keyword, count as total_count, date
-        FROM LatestTrends
-        WHERE rn = 1
+        FROM trends
+        WHERE date = date('now', '-1 day')
         ORDER BY total_count DESC
         LIMIT 20
       `;
-      db.all(query, (err, rows) => {
+      
+      db.all(queryYesterday, (err, rows) => {
         if (err) {
-          logger.error(`查询最近趋势失败: ${err.message}`, 'MODEL');
+          logger.error(`查询昨天趋势失败: ${err.message}`, 'MODEL');
+          reject(err);
+          return;
+        }
+        
+        // 如果昨天有数据，直接返回
+        if (rows.length > 0) {
+          resolve(rows);
+          return;
+        }
+        
+        // 如果昨天没数据，查询最近一天有数据的
+        const queryLatest = `
+          SELECT keyword, count as total_count, date
+          FROM trends
+          WHERE date = (SELECT MAX(date) FROM trends)
+          ORDER BY total_count DESC
+          LIMIT 20
+        `;
+        
+        db.all(queryLatest, (err2, rows2) => {
+          if (err2) {
+            logger.error(`查询最近趋势失败: ${err2.message}`, 'MODEL');
+            reject(err2);
+          } else {
+            resolve(rows2);
+          }
+        });
+      });
+    });
+  },
+
+  hasTrendsForDate: (date) => {
+    return new Promise((resolve, reject) => {
+      const query = `SELECT COUNT(*) as count FROM trends WHERE date = ?`;
+      db.get(query, [date], (err, row) => {
+        if (err) {
+          logger.error(`检查趋势数据失败: ${err.message}`, 'MODEL');
           reject(err);
         } else {
-          resolve(rows);
+          resolve(row.count > 0);
         }
       });
     });
@@ -50,10 +83,13 @@ const Trend = {
 
   getTrendHistory: (keyword, days = 30) => {
     return new Promise((resolve, reject) => {
+      // 查询最近30天（包含今天）的所有可用数据
+      // 不再排除今天，因为有些关键词可能只有今天的数据
       const query = `
         SELECT date, count
         FROM trends
-        WHERE keyword = ? AND date >= date('now', '-${days} days')
+        WHERE keyword = ? 
+          AND date >= date('now', '-${days} days')
         ORDER BY date ASC
       `;
       db.all(query, [keyword], (err, rows) => {

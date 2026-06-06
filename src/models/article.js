@@ -50,6 +50,12 @@ const Article = {
         params.push(`%${options.keyword}%`);
       }
 
+      // Filter by date if provided (defaults to yesterday)
+      if (options.date) {
+        conditions.push('DATE(published_at) = ?');
+        params.push(options.date);
+      }
+
       if (conditions.length > 0) {
         query += ' WHERE ' + conditions.join(' AND ');
       }

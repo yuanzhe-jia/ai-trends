@@ -25,8 +25,8 @@ const aiKeywords = [
 ];
 
 // 使用预定义关键词库统计每个关键词在标题中出现的文章数
-const countArticlesWithKeyword = async () => {
-  const articles = await Article.findAll();
+const countArticlesWithKeyword = async (date) => {
+  const articles = await Article.findAll({ date });
   
   if (articles.length === 0) {
     logger.warn('没有文章可分析', 'TREND');
@@ -51,8 +51,8 @@ const countArticlesWithKeyword = async () => {
 };
 
 // 使用 LLM 从文章中提取关键词
-const countArticlesWithLLM = async () => {
-  const articles = await Article.findAll();
+const countArticlesWithLLM = async (date) => {
+  const articles = await Article.findAll({ date });
   
   if (articles.length === 0) {
     logger.warn('没有文章可分析', 'TREND');
@@ -62,16 +62,10 @@ const countArticlesWithLLM = async () => {
   return await llmService.extractKeywordsFromArticles(articles);
 };
 
-const analyzeTrendsFromArticles = async () => {
+const analyzeTrendsFromArticles = async (date) => {
   try {
-    // 优先使用 LLM 提取关键词
-    let keywordCounts = await countArticlesWithLLM();
-    
-    // 如果 LLM 未能提取到关键词，使用预定义关键词库作为 fallback
-    if (Object.keys(keywordCounts).length === 0) {
-      logger.info('LLM 未提取到关键词，使用预定义关键词库', 'TREND');
-      keywordCounts = await countArticlesWithKeyword();
-    }
+    // 使用预定义关键词库统计标题中关键词出现次数
+    const keywordCounts = await countArticlesWithKeyword(date);
     
     const sortedKeywords = Object.entries(keywordCounts)
       .sort((a, b) => b[1] - a[1])
@@ -84,15 +78,22 @@ const analyzeTrendsFromArticles = async () => {
   }
 };
 
-const updateTrends = async () => {
+const updateTrends = async (date = null) => {
   try {
     logger.info('开始更新趋势数据', 'TREND');
     
-    const trends = await analyzeTrendsFromArticles();
-    const today = new Date().toISOString().split('T')[0];
+    // 如果传入了日期参数则使用它，否则使用昨天的日期
+    const dateStr = date || (() => {
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      return yesterday.toISOString().split('T')[0];
+    })();
+    
+    // 分析指定日期的文章来生成关键词
+    const trends = await analyzeTrendsFromArticles(dateStr);
     
     for (const [keyword, count] of Object.entries(trends)) {
-      await Trend.createOrUpdate(keyword, count, today);
+      await Trend.createOrUpdate(keyword, count, dateStr);
     }
     
     await Trend.deleteOldTrends(90);
@@ -116,6 +117,35 @@ const getRecentTrends = async (days = 7) => {
   }
 };
 
+// 按需更新趋势数据：如果昨天没有数据，则抓取RSS并更新趋势
+const checkAndUpdateTrends = async () => {
+  try {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().split('T')[0];
+    
+    const hasData = await Trend.hasTrendsForDate(yesterdayStr);
+    
+    if (!hasData) {
+      logger.info(`昨日(${yesterdayStr})无趋势数据，开始抓取RSS并更新`, 'TREND');
+      
+      // 动态导入 rssService 避免循环依赖
+      const rssService = require('./rssService');
+      await rssService.fetchAllRssFeeds();
+      await updateTrends();
+      
+      logger.info(`按需更新完成`, 'TREND');
+    } else {
+      logger.info(`昨日(${yesterdayStr})已有趋势数据，无需更新`, 'TREND');
+    }
+    
+    return await Trend.getRecentTrends(7);
+  } catch (error) {
+    logger.error(`按需更新趋势失败: ${error.message}`, 'TREND');
+    throw error;
+  }
+};
+
 const getTrendHistory = async (keyword, days = 30) => {
   try {
     const history = await Trend.getTrendHistory(keyword, days);
@@ -130,5 +160,6 @@ module.exports = {
   analyzeTrendsFromArticles,
   updateTrends,
   getRecentTrends,
+  checkAndUpdateTrends,
   getTrendHistory,
 };
