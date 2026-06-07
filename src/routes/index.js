@@ -24,6 +24,10 @@ router.get('/articles', articleController.getAllArticles);
 router.get('/trends', trendController.getRecentTrends);
 router.get('/trends/:keyword/history', trendController.getTrendHistory);
 router.post('/trends/update', trendController.updateTrends);
+router.get('/trends/check-update', trendController.checkUpdate);
+
+// 清理旧文章（只保留最新一天的文章）
+router.post('/articles/cleanup', articleController.cleanupOldArticles);
 router.post('/rss/update', async (req, res) => {
   try {
     const result = await rssService.fetchAllRssFeeds();

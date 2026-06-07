@@ -1,7 +1,36 @@
 const trendService = require('../services/trendService');
+const trendModel = require('../models/trend');
 const logger = require('../utils/logger');
 
 const trendController = {
+  // 检查是否需要更新（当日第一次访问时）
+  checkUpdate: async (req, res) => {
+    try {
+      // 获取昨天的日期
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayStr = yesterday.toISOString().split('T')[0];
+      
+      // 检查数据库中是否已有昨天的趋势数据
+      const yesterdayTrends = await trendModel.findByDate(yesterdayStr);
+      
+      // 如果没有昨天的数据，或者数据很少，就需要更新
+      const needUpdate = !yesterdayTrends || yesterdayTrends.length < 3;
+      
+      res.json({
+        success: true,
+        needUpdate: needUpdate,
+        latestDate: yesterdayTrends.length > 0 ? yesterdayStr : null,
+      });
+    } catch (error) {
+      logger.error(`检查更新失败: ${error.message}`, 'CONTROLLER');
+      res.status(500).json({
+        success: false,
+        error: error.message,
+      });
+    }
+  },
+
   getRecentTrends: async (req, res) => {
     try {
       // 仅获取趋势数据，不自动更新（按需更新由前端手动触发）

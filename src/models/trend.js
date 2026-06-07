@@ -81,6 +81,25 @@ const Trend = {
     });
   },
 
+  findByDate: (date) => {
+    return new Promise((resolve, reject) => {
+      const query = `
+        SELECT keyword, count as total_count, date
+        FROM trends
+        WHERE date = ?
+        ORDER BY total_count DESC
+      `;
+      db.all(query, [date], (err, rows) => {
+        if (err) {
+          logger.error(`查询指定日期趋势失败: ${err.message}`, 'MODEL');
+          reject(err);
+        } else {
+          resolve(rows);
+        }
+      });
+    });
+  },
+
   getTrendHistory: (keyword, days = 30) => {
     return new Promise((resolve, reject) => {
       // 查询最近30天（包含今天）的所有可用数据

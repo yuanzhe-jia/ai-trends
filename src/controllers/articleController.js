@@ -26,6 +26,25 @@ const articleController = {
       });
     }
   },
+
+  // 清理旧文章（只保留最新一天的文章）
+  cleanupOldArticles: async (req, res) => {
+    try {
+      const deletedCount = await Article.cleanupOldArticles();
+      
+      res.json({
+        success: true,
+        deletedCount: deletedCount,
+        message: `成功清理 ${deletedCount} 篇旧文章`,
+      });
+    } catch (error) {
+      logger.error(`清理旧文章失败: ${error.message}`, 'CONTROLLER');
+      res.status(500).json({
+        success: false,
+        error: error.message,
+      });
+    }
+  },
 };
 
 module.exports = articleController;

@@ -94,6 +94,30 @@ const Article = {
       );
     });
   },
+
+  // 清理旧文章（只保留最新一天的文章）
+  cleanupOldArticles: () => {
+    return new Promise((resolve, reject) => {
+      // 获取昨天的日期（最新一天的数据）
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+      db.run(
+        `DELETE FROM articles WHERE DATE(published_at) != ?`,
+        [yesterdayStr],
+        function (err) {
+          if (err) {
+            logger.error(`清理旧文章失败: ${err.message}`, 'MODEL');
+            reject(err);
+          } else {
+            logger.info(`清理了 ${this.changes} 篇旧文章，只保留 ${yesterdayStr} 的文章`, 'MODEL');
+            resolve(this.changes);
+          }
+        }
+      );
+    });
+  },
 };
 
 module.exports = Article;
