@@ -4,8 +4,8 @@ AI trend tracking from Chinese tech news sources.
 
 ## Features
 
-- **Keywords**: Trending AI keywords with heat visualization
-- **News Feed**: Related articles filtered by keyword
+- **Keywords**: AI-powered keyword extraction with heat visualization
+- **News Feed**: Related news filtered by keyword
 - **Trend History**: 30-day trend chart for each keyword
 - **On-Demand Update**: Data updates automatically when page is accessed
 
@@ -21,8 +21,6 @@ npm install
 npm start
 # Visit http://localhost:3000
 ```
-
-AI-powered keyword extraction using Doubao LLM API. Get your API key and copy `.env.dist` to `.env` and add your API key.
 
 ## API Endpoints
 
