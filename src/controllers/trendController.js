@@ -14,13 +14,17 @@ const trendController = {
       // 检查数据库中是否已有昨天的趋势数据
       const yesterdayTrends = await trendModel.findByDate(yesterdayStr);
       
-      // 如果没有昨天的数据，或者数据很少，就需要更新
-      const needUpdate = !yesterdayTrends || yesterdayTrends.length < 3;
+      // 获取数据库中最新的日期
+      const latestTrend = await trendModel.getLatest();
+      const latestDate = latestTrend ? latestTrend.date : null;
+      
+      // 如果没有昨天的数据，或者最新数据不是昨天，就需要更新
+      const needUpdate = !yesterdayTrends || yesterdayTrends.length === 0 || latestDate !== yesterdayStr;
       
       res.json({
         success: true,
         needUpdate: needUpdate,
-        latestDate: yesterdayTrends.length > 0 ? yesterdayStr : null,
+        latestDate: latestDate,
       });
     } catch (error) {
       logger.error(`检查更新失败: ${error.message}`, 'CONTROLLER');
@@ -81,6 +85,24 @@ const trendController = {
       });
     } catch (error) {
       logger.error(`更新趋势失败: ${error.message}`, 'CONTROLLER');
+      res.status(500).json({
+        success: false,
+        error: error.message,
+      });
+    }
+  },
+
+  getMaxHeat: async (req, res) => {
+    try {
+      const { date } = req.query;
+      const maxHeat = await trendModel.getMaxHeat(date);
+      
+      res.json({
+        success: true,
+        data: maxHeat,
+      });
+    } catch (error) {
+      logger.error(`获取最大热度失败: ${error.message}`, 'CONTROLLER');
       res.status(500).json({
         success: false,
         error: error.message,

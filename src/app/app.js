@@ -537,6 +537,10 @@ const init = async () => {
       dateToUse = await getLatestDateWithData();
     }
     
+    // 获取指定日期的最大热度值，用于统一所有趋势图的Y轴
+    const maxHeatData = await fetchData(`/trends/max-heat?date=${dateToUse}`);
+    globalMaxHeat = maxHeatData || 1;
+    
     // 更新页面上的日期显示
     const updateDateEl = document.getElementById('update-date');
     if (updateDateEl && dateToUse) {
