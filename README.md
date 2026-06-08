@@ -22,7 +22,7 @@ npm start
 # Visit http://localhost:3000
 ```
 
-AI-powered keyword extraction using Doubao LLM API. Get your API key and copy `.env.example` to `.env` and add your API key.
+AI-powered keyword extraction using Doubao LLM API. Get your API key and copy `.env.dist` to `.env` and add your API key.
 
 ## API Endpoints
 
