@@ -20,13 +20,6 @@ const config = {
   ],
   
   dataRetentionDays: 30,
-  
-  // 豆包 LLM API 配置
-  llm: {
-    apiKey: process.env.DOUBAO_API_KEY || '',
-    endpoint: 'https://ark.cn-beijing.volces.com/api/v3/chat/completions',
-    model: 'doubao-pro-32k',
-  },
 };
 
 module.exports = config;

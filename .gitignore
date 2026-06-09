@@ -8,8 +8,7 @@ package-lock.json
 data/*.sqlite
 
 # 日志
-logs/
-*.log
+src/logs/
 
 # 环境配置
 .env

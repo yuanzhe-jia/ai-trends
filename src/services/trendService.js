@@ -1,9 +1,9 @@
 const Article = require('../models/article');
 const Trend = require('../models/trend');
-const llmService = require('./llmService');
+const config = require('../config');
 const logger = require('../utils/logger');
 
-// AI相关关键词库（按类别分组）- 作为 fallback
+// AI相关关键词库（按类别分组）
 const aiKeywords = [
   // 技术概念
   'GPT', 'LLM', '大模型', '人工智能', '机器学习', '深度学习',
@@ -50,18 +50,6 @@ const countArticlesWithKeyword = async (date) => {
   return keywordCounts;
 };
 
-// 使用 LLM 从文章中提取关键词
-const countArticlesWithLLM = async (date) => {
-  const articles = await Article.findAll({ date });
-  
-  if (articles.length === 0) {
-    logger.warn('没有文章可分析', 'TREND');
-    return {};
-  }
-  
-  return await llmService.extractKeywordsFromArticles(articles);
-};
-
 const analyzeTrendsFromArticles = async (date) => {
   try {
     // 使用预定义关键词库统计标题中关键词出现次数
@@ -96,7 +84,7 @@ const updateTrends = async (date = null) => {
       await Trend.createOrUpdate(keyword, count, dateStr);
     }
     
-    await Trend.deleteOldTrends(90);
+    await Trend.deleteOldTrends(config.dataRetentionDays);
     
     logger.info(`趋势更新完成，共更新 ${Object.keys(trends).length} 个关键词`, 'TREND');
     

@@ -19,7 +19,6 @@ AI trend tracking from Chinese tech news sources.
 ```bash
 npm install
 npm start
-# Visit http://localhost:3000
 ```
 
 ## API Endpoints
