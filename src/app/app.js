@@ -319,10 +319,8 @@ const renderTrendHistory = (keyword, history) => {
     return `${date.getMonth() + 1}/${date.getDate()}`;
   });
   const data = dateRange.map(d => historyMap.get(d) || 0);
-  // 使用所有关键词中的最大热度值作为Y轴上限，确保所有趋势图刻度一致
-  const globalMaxValue = currentTrends.length > 0 
-    ? Math.max(...currentTrends.map(t => t.total_count))
-    : Math.max(...data, 1);
+  // 使用所有关键词历史数据中的最大值作为Y轴上限（确保所有趋势图刻度一致）
+  const globalMaxValue = globalMaxHeat;
   
   container.innerHTML = `
     <div class="mb-4">
@@ -537,8 +535,8 @@ const init = async () => {
       dateToUse = await getLatestDateWithData();
     }
     
-    // 获取指定日期的最大热度值，用于统一所有趋势图的Y轴
-    const maxHeatData = await fetchData(`/trends/max-heat?date=${dateToUse}`);
+    // 获取所有关键词历史数据中的最大值，用于统一所有趋势图的Y轴
+    const maxHeatData = await fetchData('/trends/max-heat-history');
     globalMaxHeat = maxHeatData || 1;
     
     // 更新页面上的日期显示

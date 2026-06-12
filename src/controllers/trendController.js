@@ -109,6 +109,24 @@ const trendController = {
       });
     }
   },
+
+  // 获取所有关键词历史数据中的最大值（用于趋势图Y轴）
+  getMaxHeatInHistory: async (req, res) => {
+    try {
+      const maxHeat = await trendModel.getMaxHeatInHistory();
+      
+      res.json({
+        success: true,
+        data: maxHeat,
+      });
+    } catch (error) {
+      logger.error(`获取历史最大热度失败: ${error.message}`, 'CONTROLLER');
+      res.status(500).json({
+        success: false,
+        error: error.message,
+      });
+    }
+  },
 };
 
 module.exports = trendController;

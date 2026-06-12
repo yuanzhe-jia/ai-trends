@@ -23,6 +23,7 @@ router.get('/articles', articleController.getAllArticles);
 
 router.get('/trends', trendController.getRecentTrends);
 router.get('/trends/max-heat', trendController.getMaxHeat);
+router.get('/trends/max-heat-history', trendController.getMaxHeatInHistory);
 router.get('/trends/:keyword/history', trendController.getTrendHistory);
 router.post('/trends/update', trendController.updateTrends);
 router.get('/trends/check-update', trendController.checkUpdate);

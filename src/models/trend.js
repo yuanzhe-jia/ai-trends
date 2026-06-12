@@ -181,6 +181,22 @@ const Trend = {
       });
     });
   },
+
+  // 获取所有关键词历史数据中的最大值（用于趋势图Y轴）
+  getMaxHeatInHistory: () => {
+    return new Promise((resolve, reject) => {
+      const query = `SELECT MAX(count) as maxHeat FROM trends`;
+      
+      db.get(query, (err, row) => {
+        if (err) {
+          logger.error(`查询历史最大热度失败: ${err.message}`, 'MODEL');
+          reject(err);
+        } else {
+          resolve(row ? row.maxHeat : 1);
+        }
+      });
+    });
+  },
 };
 
 module.exports = Trend;
