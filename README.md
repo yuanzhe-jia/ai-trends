@@ -66,9 +66,8 @@ ai-trends/
 ├── data/                   # SQLite database (ignored by git)
 ├── logs/                   # Log files (ignored by git)
 ├── .env                    # Environment variables
-├── ai-trends.service       # systemd service config
 ├── ecosystem.config.js     # PM2 configuration
-├── setup.sh                # Server initialization script
+├── setup.sh                # Server initialization script (auto-generates systemd service)
 ├── deploy.sh               # Deployment/update script
 ├── package.json
 └── README.md

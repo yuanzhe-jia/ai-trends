@@ -1,4 +1,5 @@
-const API_BASE = 'http://localhost:3000/api';
+// 使用相对路径，在生产环境中自动使用当前域名
+const API_BASE = '/api';
 
 let selectedKeyword = null;
 let isLoading = false;

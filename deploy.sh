@@ -4,8 +4,13 @@ set -e
 
 echo "=== 开始部署 AI-Trends ==="
 
+# 获取脚本所在目录
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$SCRIPT_DIR"
+
+echo "当前工作目录: $(pwd)"
+
 echo "1. 拉取最新代码..."
-cd /home/ubuntu/ai-trends
 git pull origin main
 
 echo "2. 安装依赖..."
