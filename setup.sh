@@ -33,4 +33,4 @@ echo ""
 echo "服务状态:"
 systemctl status ai-trends.service
 echo ""
-echo "访问地址: http://your-server-ip:3000"
+echo "访问地址: http://111.231.106.182:3000"
