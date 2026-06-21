@@ -21,12 +21,12 @@ echo "5. 安装项目依赖..."
 npm install --production
 
 echo "6. 配置 systemd..."
-cp ai-trends.service /etc/systemd/system/
-systemctl daemon-reload
-systemctl enable ai-trends.service
+sudo cp ai-trends.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable ai-trends.service
 
 echo "7. 启动服务..."
-systemctl start ai-trends.service
+sudo systemctl start ai-trends.service
 
 echo "=== 初始化完成 ==="
 echo ""
