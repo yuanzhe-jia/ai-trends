@@ -3,7 +3,6 @@ const xml2js = require('xml2js');
 const config = require('../config');
 const Article = require('../models/article');
 const logger = require('../utils/logger');
-const { sanitizeText, extractDomain } = require('../utils/helpers');
 
 const parseRssFeed = async (xmlString) => {
   return new Promise((resolve, reject) => {
@@ -30,15 +29,10 @@ const extractArticlesFromFeed = (feedData, sourceName) => {
         url: item.link || item.guid || '',
         source: sourceName,
         published_at: item.pubDate ? new Date(item.pubDate).toISOString() : null,
-        content: item.description || item['content:encoded'] || '',
-        summary: null,
-        author: item.author || null,
         tags: item.category ? (Array.isArray(item.category) ? item.category.join(',') : item.category) : null,
-        image_url: item.enclosure?.['$']?.url || null,
       };
       
       if (article.title && article.url) {
-        article.content = sanitizeText(article.content);
         articles.push(article);
       }
     });

@@ -5,23 +5,64 @@ const logger = require('../utils/logger');
 
 // AI相关关键词库（按类别分组）
 const aiKeywords = [
-  // 技术概念
-  'GPT', 'LLM', '大模型', '人工智能', '机器学习', '深度学习',
-  '神经网络', 'Transformer', 'NLP', '自然语言处理', '计算机视觉',
-  '图像生成', '多模态', 'AGI', '通用人工智能', '强化学习', '数据科学',
+  // 技术概念 - 基础概念
+  'AI', 'AGI', 'LLM', '大模型', '人工智能',
+  '机器学习', '深度学习', '强化学习', '神经网络', 'Transformer',
+  'NLP', '自然语言处理', 'CV', '计算机视觉', '图像生成',
+  '多模态', '数据科学',
+
+  // 技术概念 - 训练与微调
   '微调', 'Prompt', '提示词', 'RAG', '检索增强',
-  
-  // 公司
-  'OpenAI', 'Google', 'Meta', 'Microsoft', 'Anthropic', '字节', '阿里', 
-  '百度', '腾讯', '华为', '英伟达',
-  
-  // 产品/服务
-  'ChatGPT', 'Gemini', 'Claude', 'Codex', 'DALL-E', 'Stable Diffusion', 
-  'MidJourney', '豆包', '通义千问', '文心一言', '混元', 'Kimi', 
-  '火山引擎', 'Agent', 'Copilot',
-  
-  // 技术应用
-  '智能助手', '聊天机器人', '自动驾驶', '机器人', 'AI安全', '伦理',
+  '联邦学习', '迁移学习', '少样本学习', 'LoRA', 'RLHF',
+  '提示工程', 'SFT',
+
+  // 技术概念 - 模型架构
+  '向量数据库', '知识图谱', '模型压缩', '模型蒸馏', 'MoE',
+  '上下文', 'Attention', '注意力机制', 'Token', '词元',
+  'Embedding', '词向量', '嵌入', '思维链', 'Agent',
+  '智能体', 'Skill',
+
+  // 技术概念 - XR 与数字人
+  '数字孪生', '元宇宙', '空间计算', '虚拟现实',
+  '增强现实', '混合现实', '数字人', '数字员工',
+
+  // 公司 - 国际科技巨头
+  'OpenAI', 'Google', '谷歌', 'Meta', 'Microsoft',
+  '微软', 'Anthropic', 'Apple', '苹果', 'Amazon',
+  '亚马逊', 'NVIDIA', '英伟达', 'Tesla', '特斯拉',
+
+  // 公司 - 国内科技巨头
+  '字节', '阿里', '百度', '腾讯', '华为',
+
+  // 公司 - AI 独角兽
+  'DeepSeek', '月之暗面', '智谱AI', '零一万物', '百川智能',
+  'MiniMax', '商汤', '讯飞', '旷视',
+
+  // 产品/服务 - GPT / OpenAI 系列
+  'GPT', 'ChatGPT', 'DALL-E', 'Codex', 'Sora', 'Grok',
+
+  // 产品/服务 - Gemini / Google
+  'Gemini', 'Vertex AI', 'Adobe Firefly',
+
+  // 产品/服务 - 图像生成
+  'Midjourney', 'Stable Diffusion', 'Flux', 'Ideogram',
+  'Nano Banana', 'Seedance', 'Seedream',
+
+  // 产品/服务 - Claude / Anthropic
+  'Claude', 'Claude Code',
+
+  // 产品/服务 - 国内大模型产品
+  '豆包', '千问', 'Qwen', '文心一言', 'ERNIE',
+  '混元', 'Kimi', '火山引擎',
+
+  // 产品/服务 - AI 编程工具
+  'Copilot', 'Cursor', 'Windsurf', 'Trae', 'Replit',
+  'Codeium', 'Tabnine', '通义灵码', '文心快码', 'CodeGeeX',
+  'Fitten Code', 'Comate',
+
+  // 产品/服务 - AI 平台与框架
+  'LangChain', 'LlamaIndex', 'LangGraph', 'Opik', 'Langfuse',
+  '轨迹评估',
 ];
 
 // 使用预定义关键词库统计每个关键词在标题中出现的文章数

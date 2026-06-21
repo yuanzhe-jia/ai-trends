@@ -22,25 +22,24 @@ const db = new sqlite3.Database(dbPath, (err) => {
 const initDatabase = () => {
   return new Promise((resolve, reject) => {
     db.serialize(() => {
+      db.run(`DROP TABLE IF EXISTS articles`);
+      db.run(`DROP TABLE IF EXISTS trends`);
+      db.run(`DROP TABLE IF EXISTS categories`);
+
       db.run(`
-        CREATE TABLE IF NOT EXISTS articles (
+        CREATE TABLE articles (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           title TEXT NOT NULL,
           url TEXT NOT NULL UNIQUE,
           source TEXT NOT NULL,
-          category TEXT DEFAULT 'general',
-          content TEXT,
-          summary TEXT,
           published_at TEXT,
           fetched_at TEXT DEFAULT CURRENT_TIMESTAMP,
-          tags TEXT,
-          image_url TEXT,
-          author TEXT
+          tags TEXT
         )
       `);
 
       db.run(`
-        CREATE TABLE IF NOT EXISTS trends (
+        CREATE TABLE trends (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           keyword TEXT NOT NULL,
           count INTEGER DEFAULT 0,
@@ -49,32 +48,6 @@ const initDatabase = () => {
           UNIQUE(keyword, date)
         )
       `);
-
-      db.run(`
-        CREATE TABLE IF NOT EXISTS categories (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          name TEXT NOT NULL UNIQUE,
-          description TEXT,
-          color TEXT DEFAULT '#3B82F6'
-        )
-      `);
-
-      const defaultCategories = [
-        { name: '大模型', description: 'GPT、LLaMA等大型语言模型相关' },
-        { name: 'AI应用', description: '人工智能在各行业的应用' },
-        { name: '研究进展', description: '最新AI研究成果' },
-        { name: '政策法规', description: 'AI相关政策和法规' },
-        { name: '行业动态', description: 'AI行业新闻和动态' },
-        { name: '技术教程', description: 'AI技术教程和指南' },
-        { name: '安全伦理', description: 'AI安全和伦理问题' },
-      ];
-
-      defaultCategories.forEach((category) => {
-        db.run(
-          'INSERT OR IGNORE INTO categories (name, description) VALUES (?, ?)',
-          [category.name, category.description]
-        );
-      });
 
       logger.info('数据库表初始化完成', 'DB');
       resolve();

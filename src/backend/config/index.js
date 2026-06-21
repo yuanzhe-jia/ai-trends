@@ -5,7 +5,7 @@ const config = {
   
   database: {
     type: 'sqlite',
-    path: path.join(__dirname, '../data/database.sqlite'),
+    path: path.join(__dirname, '../../../data/database.sqlite'),
   },
   
   rssFeeds: [

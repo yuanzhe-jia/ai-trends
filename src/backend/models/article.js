@@ -8,20 +8,15 @@ const Article = {
         title,
         url,
         source,
-        category = 'general',
-        content = null,
-        summary = null,
         published_at = null,
         tags = null,
-        image_url = null,
-        author = null,
       } = article;
 
       db.run(
         `INSERT OR IGNORE INTO articles 
-          (title, url, source, category, content, summary, published_at, tags, image_url, author)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [title, url, source, category, content, summary, published_at, tags, image_url, author],
+          (title, url, source, published_at, tags)
+          VALUES (?, ?, ?, ?, ?)`,
+        [title, url, source, published_at, tags],
         function (err) {
           if (err) {
             if (err.message.includes('UNIQUE constraint failed')) {
