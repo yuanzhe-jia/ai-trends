@@ -28,12 +28,12 @@ const runDailyUpdate = async () => {
 const startScheduler = () => {
   const schedule = require('node-schedule');
   
-  const job = schedule.scheduleJob('0 0 1 * * *', async () => {
-    logger.info('触发每日定时任务 (凌晨1:00)', 'SCHEDULER');
+  const job = schedule.scheduleJob('0 0 3 * * *', async () => {
+    logger.info('触发每日定时任务 (凌晨3:00)', 'SCHEDULER');
     await runDailyUpdate();
   });
   
-  logger.info('定时任务已启动: 每日凌晨1:00自动更新', 'SCHEDULER');
+  logger.info('定时任务已启动: 每日凌晨3:00自动更新', 'SCHEDULER');
   
   return job;
 };

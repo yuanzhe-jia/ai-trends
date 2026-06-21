@@ -22,12 +22,8 @@ const db = new sqlite3.Database(dbPath, (err) => {
 const initDatabase = () => {
   return new Promise((resolve, reject) => {
     db.serialize(() => {
-      db.run(`DROP TABLE IF EXISTS articles`);
-      db.run(`DROP TABLE IF EXISTS trends`);
-      db.run(`DROP TABLE IF EXISTS categories`);
-
       db.run(`
-        CREATE TABLE articles (
+        CREATE TABLE IF NOT EXISTS articles (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           title TEXT NOT NULL,
           url TEXT NOT NULL UNIQUE,
@@ -39,7 +35,7 @@ const initDatabase = () => {
       `);
 
       db.run(`
-        CREATE TABLE trends (
+        CREATE TABLE IF NOT EXISTS trends (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           keyword TEXT NOT NULL,
           count INTEGER DEFAULT 0,

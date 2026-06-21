@@ -5,9 +5,11 @@ AI trend tracking from Chinese tech news sources.
 ## Features
 
 - **Keyword Heatmap** - Visualize trending AI topics with heat visualization
-- **News Aggregation** - Automatically fetch RSS feeds from 8 Chinese tech media sources
+- **News Aggregation** - Automatically fetch RSS feeds from 12 Chinese tech media sources
 - **Trend History** - 30-day trend charts to track topic popularity changes
+- **Scheduled Updates** - Daily automatic updates at 3:00 AM (UTC+8)
 - **Lightweight Storage** - SQLite database with zero configuration
+- **Production-Ready** - PM2 + systemd for reliable deployment
 
 ## Tech Stack
 
@@ -16,6 +18,8 @@ AI trend tracking from Chinese tech news sources.
 | Frontend | HTML, Tailwind CSS, Chart.js |
 | Backend | Node.js, Express |
 | Database | SQLite |
+| Scheduler | node-schedule |
+| Process Manager | PM2 |
 
 ## Quick Start
 
@@ -56,10 +60,16 @@ ai-trends/
 │       ├── database/       # Database connection
 │       ├── models/         # Data models
 │       ├── routes/         # API routes
-│       ├── services/       # Business logic
-│       ├── utils/          # Utility functions
+│       ├── services/       # Business logic (RSS, scheduler, trends)
+│       ├── utils/          # Utility functions (logger)
 │       └── server.js       # Entry point
-├── data/                   # SQLite database
+├── data/                   # SQLite database (ignored by git)
+├── logs/                   # Log files (ignored by git)
+├── .env                    # Environment variables
+├── ai-trends.service       # systemd service config
+├── ecosystem.config.js     # PM2 configuration
+├── setup.sh                # Server initialization script
+├── deploy.sh               # Deployment/update script
 ├── package.json
 └── README.md
 ```
