@@ -6,9 +6,9 @@ After=network.target
 Type=forking
 User=ubuntu
 WorkingDirectory=/home/ubuntu/ai-trends
-ExecStart=/usr/local/bin/pm2 start ecosystem.config.js
+ExecStart=/usr/local/bin/pm2 start ecosystem.config.js --daemon
 ExecReload=/usr/local/bin/pm2 reload ecosystem.config.js
-ExecStop=/usr/local/bin/pm2 stop ecosystem.config.js
+ExecStop=/usr/local/bin/pm2 delete ai-trends
 Restart=always
 RestartSec=10
 Environment=NODE_ENV=production

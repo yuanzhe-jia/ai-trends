@@ -5,14 +5,14 @@ set -e
 echo "=== AI-Trends 服务器初始化 ==="
 
 echo "1. 更新系统..."
-apt-get update && apt-get upgrade -y
+sudo apt-get update && sudo apt-get upgrade -y
 
 echo "2. 安装 Node.js 18..."
-curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
-apt-get install -y nodejs
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo bash -
+sudo apt-get install -y nodejs
 
 echo "3. 安装 PM2..."
-npm install pm2 -g
+sudo npm install pm2 -g
 
 echo "4. 创建数据目录..."
 mkdir -p data logs
