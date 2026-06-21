@@ -5,6 +5,7 @@ const config = require('./config');
 const { initDatabase } = require('./database/connection');
 const routes = require('./routes');
 const logger = require('./utils/logger');
+const { startScheduler } = require('./services/scheduler');
 
 const app = express();
 
@@ -23,6 +24,8 @@ const startServer = async () => {
     app.listen(config.port, () => {
       logger.info(`服务器启动成功，运行在 http://localhost:${config.port}`, 'SERVER');
     });
+
+    startScheduler();
 
     logger.info('应用初始化完成', 'SERVER');
   } catch (error) {

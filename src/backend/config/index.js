@@ -17,6 +17,10 @@ const config = {
     { name: 'CSDN', url: 'https://blog.csdn.net/rss' },
     { name: 'OSCHINA', url: 'https://www.oschina.net/news/rss' },
     { name: '雷峰网', url: 'https://www.leiphone.com/feed' },
+    { name: '爱范儿', url: 'https://www.ifanr.com/feed' },
+    { name: 'IT之家', url: 'https://www.ithome.com/rss/' },
+    { name: '知乎精选', url: 'https://www.zhihu.com/rss' },
+    { name: '少数派', url: 'https://sspai.com/feed' },
   ],
   
   dataRetentionDays: 30,
