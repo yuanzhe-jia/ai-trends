@@ -5,67 +5,6 @@ let selectedKeyword = null;
 let isLoading = false;
 let currentTrends = [];
 
-// 获取最近有数据的日期：优先昨天，没有则找最近一天
-let cachedLatestDate = null;
-const getLatestDateWithData = async () => {
-  // 如果有缓存的日期（从趋势数据中获取）
-  if (cachedLatestDate) {
-    return cachedLatestDate;
-  }
-  
-  // 默认返回昨天
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-  return yesterday.toISOString().split('T')[0];
-};
-
-// 检查并触发当日第一次访问的数据更新
-const checkAndTriggerDailyUpdate = async () => {
-  const today = new Date().toISOString().split('T')[0];
-  
-  try {
-    // 检查是否需要更新（检查昨天的数据是否存在）
-    const response = await fetch(`${API_BASE}/trends/check-update`);
-    const data = await response.json();
-    
-    if (data.needUpdate) {
-      // 显示更新提示
-      showUpdateNotification();
-      
-      // 触发数据更新
-      await fetch(`${API_BASE}/rss/update`, { method: 'POST' });
-      await fetch(`${API_BASE}/trends/update`, { method: 'POST' });
-      await fetch(`${API_BASE}/articles/cleanup`, { method: 'POST' });
-      
-      // 更新完成后刷新页面
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
-      
-      return true;
-    }
-    return false;
-  } catch (error) {
-    console.error('检查更新失败:', error);
-    return false;
-  }
-};
-
-// 显示更新提示
-const showUpdateNotification = () => {
-  const container = document.getElementById('update-notification');
-  if (container) {
-    container.innerHTML = `
-      <div class="fixed top-4 right-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-xl shadow-lg flex items-center gap-3 z-50 animate-pulse">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-        </svg>
-        <span class="font-medium">正在更新数据...</span>
-      </div>
-    `;
-  }
-};
-
 const fetchData = async (endpoint) => {
   try {
     const response = await fetch(`${API_BASE}${endpoint}`);
@@ -521,8 +460,8 @@ const clearFilter = () => {
 
 const init = async () => {
   try {
-    // 检查是否需要更新数据（当日第一次访问时）
-    await checkAndTriggerDailyUpdate();
+    // 数据更新由定时任务（每日凌晨3:00）自动处理
+    // 页面只负责展示数据
     
     // 先获取趋势数据，从中提取日期
     const trends = await fetchData('/trends?days=7');
