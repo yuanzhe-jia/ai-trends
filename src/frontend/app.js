@@ -447,8 +447,8 @@ const selectKeyword = async (keyword) => {
         fetchData(`/trends/${encodeURIComponent(selectedKeyword)}/history?days=30`)
       ]);
     } else {
-      // 未选择关键词：返回标题中包含任意关键词的文章
-      const allArticles = await fetchData(`/articles?date=${dateToUse}&limit=100`);
+      // 未选择关键词：返回标题中包含任意关键词的文章（不限制数量）
+      const allArticles = await fetchData(`/articles?date=${dateToUse}`);
       const keywords = currentTrends.map(t => t.keyword);
       articles = allArticles.filter(article => {
         return keywords.some(keyword => {
@@ -547,8 +547,8 @@ const init = async () => {
       updateDateEl.textContent = `${date.getMonth() + 1}月${date.getDate()}日`;
     }
     
-    // 用这个日期去获取文章
-    const articles = await fetchData(`/articles?date=${dateToUse}&limit=100`);
+    // 用这个日期去获取文章（不限制数量，确保获取所有相关文章）
+    const articles = await fetchData(`/articles?date=${dateToUse}`);
     
     // 过滤文章：只保留标题中包含任意关键词的文章
     const keywords = trends.map(t => t.keyword);
