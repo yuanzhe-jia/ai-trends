@@ -234,7 +234,7 @@ const renderNewsList = (articles) => {
   
   container.innerHTML = `
     <div class="space-y-2 h-full">
-      ${articles.slice(0, 10).map((article, index) => {
+      ${articles.map((article, index) => {
         const date = article.published_at 
           ? new Date(article.published_at).toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })
           : article.fetched_at 
@@ -443,7 +443,7 @@ const selectKeyword = async (keyword) => {
     if (selectedKeyword) {
       // 选择了关键词：只返回标题中包含该关键词的文章
       [articles, history] = await Promise.all([
-        fetchData(`/articles?keyword=${encodeURIComponent(selectedKeyword)}&date=${dateToUse}&limit=30`),
+        fetchData(`/articles?keyword=${encodeURIComponent(selectedKeyword)}&date=${dateToUse}`),
         fetchData(`/trends/${encodeURIComponent(selectedKeyword)}/history?days=30`)
       ]);
     } else {

@@ -6,10 +6,15 @@ const articleController = {
     try {
       const { keyword, limit, date } = req.query;
       const options = {
-        limit: parseInt(limit) || 50,
         keyword: keyword || undefined,
         date: date || undefined,
       };
+      
+      // 只有当明确提供了 limit 参数时才设置限制
+      // 如果提供了关键词但没有提供 limit，则返回所有匹配的文章
+      if (limit !== undefined && limit !== null && limit !== '') {
+        options.limit = parseInt(limit);
+      }
       
       const articles = await Article.findAll(options);
       
