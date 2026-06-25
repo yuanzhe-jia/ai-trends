@@ -1,6 +1,6 @@
 # AI-Trends
 
-AI trend tracking from Chinese tech news sources.
+AI trend tracking from Chinese tech news.
 
 ## Features
 
