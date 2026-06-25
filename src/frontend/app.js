@@ -4,6 +4,8 @@ const API_BASE = '/api';
 let selectedKeyword = null;
 let isLoading = false;
 let currentTrends = [];
+let cachedLatestDate = null;
+let globalMaxHeat = 1;
 
 const fetchData = async (endpoint) => {
   try {
@@ -16,6 +18,16 @@ const fetchData = async (endpoint) => {
   } catch (error) {
     console.error(`获取数据失败 ${endpoint}:`, error);
     return [];
+  }
+};
+
+const getLatestDateWithData = async () => {
+  try {
+    const date = await fetchData('/trends/latest-date');
+    return date;
+  } catch (error) {
+    console.error('获取最新日期失败:', error);
+    return null;
   }
 };
 

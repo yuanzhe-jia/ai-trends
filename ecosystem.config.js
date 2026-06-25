@@ -2,7 +2,6 @@ module.exports = {
   apps: [{
     name: 'ai-trends',
     script: 'src/backend/server.js',
-    // 使用相对路径，PM2 会自动使用当前目录
     cwd: './',
     instances: 1,
     autorestart: true,
@@ -11,13 +10,14 @@ module.exports = {
     env: {
       NODE_ENV: 'production',
       PORT: 3000,
+      TZ: 'Asia/Shanghai',
     },
     env_production: {
       NODE_ENV: 'production',
       PORT: 3000,
+      TZ: 'Asia/Shanghai',
     },
     log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
-    // 使用相对路径
     error_file: './logs/pm2-error.log',
     out_file: './logs/pm2-out.log',
     merge_logs: true,

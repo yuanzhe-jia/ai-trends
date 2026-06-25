@@ -27,6 +27,7 @@ router.get('/trends/max-heat-history', trendController.getMaxHeatInHistory);
 router.get('/trends/:keyword/history', trendController.getTrendHistory);
 router.post('/trends/update', trendController.updateTrends);
 router.get('/trends/check-update', trendController.checkUpdate);
+router.get('/trends/latest-date', trendController.getLatestDate);
 
 // 清理旧文章（只保留最新一天的文章）
 router.post('/articles/cleanup', articleController.cleanupOldArticles);

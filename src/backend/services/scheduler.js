@@ -37,15 +37,46 @@ const runDailyUpdate = async () => {
   }
 };
 
-const startScheduler = () => {
+const checkAndCatchUpData = async () => {
+  try {
+    logger.info('=== 检查数据完整性 ===', 'SCHEDULER');
+    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().split('T')[0];
+    
+    const hasYesterdayTrends = await Trend.hasTrendsForDate(yesterdayStr);
+    
+    if (!hasYesterdayTrends) {
+      logger.warn(`检测到 ${yesterdayStr} 缺少趋势数据，开始补全`, 'SCHEDULER');
+      await runDailyUpdate();
+    } else {
+      logger.info(`${yesterdayStr} 数据完整，无需补全`, 'SCHEDULER');
+    }
+  } catch (error) {
+    logger.error(`数据补全检查失败: ${error.message}`, 'SCHEDULER');
+  }
+};
+
+const startScheduler = async () => {
+  await checkAndCatchUpData();
+  
   const schedule = require('node-schedule');
   
-  const job = schedule.scheduleJob('0 0 3 * * *', async () => {
-    logger.info('触发每日定时任务 (凌晨3:00)', 'SCHEDULER');
+  const job = schedule.scheduleJob({
+    hour: 3,
+    minute: 0,
+    second: 0,
+    tz: 'Asia/Shanghai',
+  }, async () => {
+    logger.info('触发每日定时任务 (北京时间凌晨3:00)', 'SCHEDULER');
     await runDailyUpdate();
   });
   
-  logger.info('定时任务已启动: 每日凌晨3:00自动更新', 'SCHEDULER');
+  logger.info('定时任务已启动: 每日北京时间凌晨3:00自动更新', 'SCHEDULER');
   
   return job;
 };

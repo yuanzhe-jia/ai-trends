@@ -22,11 +22,15 @@ const startServer = async () => {
   try {
     await initDatabase();
     
-    app.listen(config.port, () => {
-      logger.info(`服务器启动成功，运行在 http://localhost:${config.port}`, 'SERVER');
+    await new Promise((resolve, reject) => {
+      const server = app.listen(config.port, () => {
+        logger.info(`服务器启动成功，运行在 http://localhost:${config.port}`, 'SERVER');
+        resolve(server);
+      });
+      server.on('error', reject);
     });
 
-    startScheduler();
+    await startScheduler();
 
     logger.info('应用初始化完成', 'SERVER');
   } catch (error) {

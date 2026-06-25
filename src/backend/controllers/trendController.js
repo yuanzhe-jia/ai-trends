@@ -127,6 +127,24 @@ const trendController = {
       });
     }
   },
+
+  getLatestDate: async (req, res) => {
+    try {
+      const latest = await trendModel.getLatest();
+      const latestDate = latest ? latest.date : null;
+      
+      res.json({
+        success: true,
+        data: latestDate,
+      });
+    } catch (error) {
+      logger.error(`获取最新日期失败: ${error.message}`, 'CONTROLLER');
+      res.status(500).json({
+        success: false,
+        error: error.message,
+      });
+    }
+  },
 };
 
 module.exports = trendController;
