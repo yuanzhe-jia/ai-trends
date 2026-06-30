@@ -60,8 +60,25 @@ echo "8. 启动服务..."
 sudo systemctl start ai-trends.service
 
 echo "9. 配置系统 Cron 定时任务（每日凌晨3:00自动更新）..."
-chmod +x scripts/setup-cron.sh
-./scripts/setup-cron.sh "0 3 * * *"
+mkdir -p logs
+CRON_LOG_FILE="$(pwd)/logs/cron.log"
+CRON_CMD="cd $(pwd) && $(which npm) run update >> $CRON_LOG_FILE 2>&1"
+CRON_ENTRY="0 3 * * * $CRON_CMD"
+EXISTING_CRON=$(crontab -l 2>/dev/null || true)
+if echo "$EXISTING_CRON" | grep -q "ai-trends.*cron.log"; then
+  NEW_CRON=$(echo "$EXISTING_CRON" | grep -v "ai-trends.*cron.log")
+  echo "$NEW_CRON" > /tmp/crontab_tmp
+  echo "# ai-trends daily update" >> /tmp/crontab_tmp
+  echo "$CRON_ENTRY" >> /tmp/crontab_tmp
+else
+  echo "$EXISTING_CRON" > /tmp/crontab_tmp
+  echo "" >> /tmp/crontab_tmp
+  echo "# ai-trends daily update" >> /tmp/crontab_tmp
+  echo "$CRON_ENTRY" >> /tmp/crontab_tmp
+fi
+crontab /tmp/crontab_tmp
+rm /tmp/crontab_tmp
+echo "Cron 定时任务已配置"
 
 echo "=== 初始化完成 ==="
 echo ""

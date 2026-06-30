@@ -2,9 +2,9 @@
 
 require('dotenv').config();
 
-const { initDatabase } = require('../src/backend/database/connection');
-const { runDailyUpdate } = require('../src/backend/services/scheduler');
-const logger = require('../src/backend/utils/logger');
+const { initDatabase } = require('./database/connection');
+const { runDailyUpdate } = require('./services/scheduler');
+const logger = require('./utils/logger');
 
 const main = async () => {
   try {

@@ -1,12 +1,12 @@
 {
   "name": "ai-trends",
   "version": "1.0.0",
-  "description": "AI trend tracking from Chinese tech news.",
+  "description": "AI trends tracking from Chinese tech resources.",
   "main": "src/backend/server.js",
   "scripts": {
     "start": "node src/backend/server.js",
     "dev": "node src/backend/server.js",
-    "update": "node bin/update.js"
+    "update": "node src/backend/update.js"
   },
   "keywords": [
     "rss-feed",

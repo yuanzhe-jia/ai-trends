@@ -19,8 +19,20 @@ echo "3. 确保数据和日志目录存在..."
 mkdir -p data logs
 
 echo "4. 确保 cron 定时任务已配置..."
-chmod +x scripts/setup-cron.sh
-./scripts/setup-cron.sh "0 3 * * *" > /dev/null 2>&1
+mkdir -p logs
+CRON_LOG_FILE="$SCRIPT_DIR/logs/cron.log"
+NPM_PATH=$(which npm)
+CRON_CMD="cd $SCRIPT_DIR && $NPM_PATH run update >> $CRON_LOG_FILE 2>&1"
+CRON_ENTRY="0 3 * * * $CRON_CMD"
+EXISTING_CRON=$(crontab -l 2>/dev/null || true)
+if ! echo "$EXISTING_CRON" | grep -q "ai-trends.*cron.log"; then
+  echo "$EXISTING_CRON" > /tmp/crontab_tmp
+  echo "" >> /tmp/crontab_tmp
+  echo "# ai-trends daily update" >> /tmp/crontab_tmp
+  echo "$CRON_ENTRY" >> /tmp/crontab_tmp
+  crontab /tmp/crontab_tmp
+  rm /tmp/crontab_tmp
+fi
 
 echo "5. 重启服务..."
 pm2 reload ecosystem.config.js
