@@ -28,6 +28,17 @@ const sanitizeXml = (xmlString) => {
     .replace(/[\x00-\x08\x0b\x0c\x0e-\x1f]/g, '');
 };
 
+// 将 RSS 中的各种日期格式转换为 SQLite 支持的 ISO 格式 (YYYY-MM-DD HH:MM:SS)
+const formatDate = (dateStr) => {
+  if (!dateStr) return null;
+  
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return null;
+  
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+};
+
 const extractArticlesFromFeed = (feedData, sourceName) => {
   const articles = [];
   
@@ -49,7 +60,7 @@ const extractArticlesFromFeed = (feedData, sourceName) => {
       title: item.title?._ || item.title || '',
       url: item.link?._ || item.link?.href || item.link || item.guid?._ || item.guid || '',
       source: sourceName,
-      published_at: item.pubDate?._ || item.pubDate || item.updated?._ || item.updated || item.published?._ || item.published || null,
+      published_at: formatDate(item.pubDate?._ || item.pubDate || item.updated?._ || item.updated || item.published?._ || item.published || null),
       tags: item.category ? (Array.isArray(item.category) ? item.category.map(c => c._ || c).join(',') : (item.category._ || item.category)) : null,
     };
     
