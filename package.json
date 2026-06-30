@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node src/backend/server.js",
     "dev": "node src/backend/server.js",
-    "update": "node -e \"require('./src/backend/services/scheduler').runDailyUpdate()\""
+    "update": "node bin/update.js"
   },
   "keywords": [
     "rss-feed",

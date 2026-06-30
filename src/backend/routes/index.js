@@ -10,27 +10,14 @@ router.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// Debug endpoint to check database path
-router.get('/debug/db', (req, res) => {
-  const config = require('../config');
-  res.json({ 
-    dbPath: config.database.path,
-    resolvedPath: require('path').resolve(config.database.path)
-  });
-});
-
 router.get('/articles', articleController.getAllArticles);
 
 router.get('/trends', trendController.getRecentTrends);
-router.get('/trends/max-heat', trendController.getMaxHeat);
 router.get('/trends/max-heat-history', trendController.getMaxHeatInHistory);
 router.get('/trends/:keyword/history', trendController.getTrendHistory);
 router.post('/trends/update', trendController.updateTrends);
-router.get('/trends/check-update', trendController.checkUpdate);
 router.get('/trends/latest-date', trendController.getLatestDate);
 
-// 清理旧文章（只保留最新一天的文章）
-router.post('/articles/cleanup', articleController.cleanupOldArticles);
 router.post('/rss/update', async (req, res) => {
   try {
     const result = await rssService.fetchAllRssFeeds();

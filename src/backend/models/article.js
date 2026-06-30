@@ -73,23 +73,6 @@ const Article = {
     });
   },
 
-  deleteOldArticles: (days) => {
-    return new Promise((resolve, reject) => {
-      db.run(
-        `DELETE FROM articles WHERE fetched_at < date('now', '-${days} days')`,
-        function (err) {
-          if (err) {
-            logger.error(`删除过期文章失败: ${err.message}`, 'MODEL');
-            reject(err);
-          } else {
-            logger.info(`删除了 ${this.changes} 篇过期文章`, 'MODEL');
-            resolve({ deleted: this.changes });
-          }
-        }
-      );
-    });
-  },
-
   // 清理旧文章（只保留最新一天的文章）
   cleanupOldArticles: () => {
     return new Promise((resolve, reject) => {

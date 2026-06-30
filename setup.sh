@@ -59,6 +59,10 @@ sudo systemctl enable ai-trends.service
 echo "8. 启动服务..."
 sudo systemctl start ai-trends.service
 
+echo "9. 配置系统 Cron 定时任务（每日凌晨3:00自动更新）..."
+chmod +x scripts/setup-cron.sh
+./scripts/setup-cron.sh "0 3 * * *"
+
 echo "=== 初始化完成 ==="
 echo ""
 echo "服务状态:"
@@ -67,3 +71,6 @@ echo ""
 echo "访问地址: http://111.231.106.182:3000"
 echo "服务用户: ubuntu"
 echo "端口: 3000"
+echo ""
+echo "定时任务: 系统 cron 每日凌晨 3:00 自动更新数据"
+echo "查看 cron 日志: tail -f logs/cron.log"

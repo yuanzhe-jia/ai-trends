@@ -3,41 +3,8 @@ const trendModel = require('../models/trend');
 const logger = require('../utils/logger');
 
 const trendController = {
-  // 检查是否需要更新（当日第一次访问时）
-  checkUpdate: async (req, res) => {
-    try {
-      // 获取昨天的日期
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      const yesterdayStr = yesterday.toISOString().split('T')[0];
-      
-      // 检查数据库中是否已有昨天的趋势数据
-      const yesterdayTrends = await trendModel.findByDate(yesterdayStr);
-      
-      // 获取数据库中最新的日期
-      const latestTrend = await trendModel.getLatest();
-      const latestDate = latestTrend ? latestTrend.date : null;
-      
-      // 如果没有昨天的数据，或者最新数据不是昨天，就需要更新
-      const needUpdate = !yesterdayTrends || yesterdayTrends.length === 0 || latestDate !== yesterdayStr;
-      
-      res.json({
-        success: true,
-        needUpdate: needUpdate,
-        latestDate: latestDate,
-      });
-    } catch (error) {
-      logger.error(`检查更新失败: ${error.message}`, 'CONTROLLER');
-      res.status(500).json({
-        success: false,
-        error: error.message,
-      });
-    }
-  },
-
   getRecentTrends: async (req, res) => {
     try {
-      // 仅获取趋势数据，不自动更新（按需更新由前端手动触发）
       const trends = await trendService.getRecentTrends(7);
       
       res.json({
@@ -74,7 +41,6 @@ const trendController = {
 
   updateTrends: async (req, res) => {
     try {
-      // 从查询参数中获取日期，如果没有则使用默认值（昨天）
       const date = req.query.date || null;
       const trends = await trendService.updateTrends(date);
       
@@ -92,25 +58,6 @@ const trendController = {
     }
   },
 
-  getMaxHeat: async (req, res) => {
-    try {
-      const { date } = req.query;
-      const maxHeat = await trendModel.getMaxHeat(date);
-      
-      res.json({
-        success: true,
-        data: maxHeat,
-      });
-    } catch (error) {
-      logger.error(`获取最大热度失败: ${error.message}`, 'CONTROLLER');
-      res.status(500).json({
-        success: false,
-        error: error.message,
-      });
-    }
-  },
-
-  // 获取所有关键词历史数据中的最大值（用于趋势图Y轴）
   getMaxHeatInHistory: async (req, res) => {
     try {
       const maxHeat = await trendModel.getMaxHeatInHistory();

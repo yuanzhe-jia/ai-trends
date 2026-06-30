@@ -11,11 +11,13 @@ module.exports = {
       NODE_ENV: 'production',
       PORT: 3000,
       TZ: 'Asia/Shanghai',
+      ENABLE_INTERNAL_SCHEDULER: 'false',
     },
     env_production: {
       NODE_ENV: 'production',
       PORT: 3000,
       TZ: 'Asia/Shanghai',
+      ENABLE_INTERNAL_SCHEDULER: 'false',
     },
     log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
     error_file: './logs/pm2-error.log',

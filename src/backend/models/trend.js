@@ -157,31 +157,6 @@ const Trend = {
     });
   },
 
-  getMaxHeat: (date = null) => {
-    return new Promise((resolve, reject) => {
-      let query;
-      let params = [];
-
-      if (date) {
-        // 查询指定日期的最大热度
-        query = `SELECT MAX(count) as maxHeat FROM trends WHERE date = ?`;
-        params = [date];
-      } else {
-        // 查询所有历史数据的最大热度（保留原有逻辑作为fallback）
-        query = `SELECT MAX(count) as maxHeat FROM trends`;
-      }
-
-      db.get(query, params, (err, row) => {
-        if (err) {
-          logger.error(`查询最大热度失败: ${err.message}`, 'MODEL');
-          reject(err);
-        } else {
-          resolve(row ? row.maxHeat : 1);
-        }
-      });
-    });
-  },
-
   // 获取所有关键词历史数据中的最大值（用于趋势图Y轴）
   getMaxHeatInHistory: () => {
     return new Promise((resolve, reject) => {

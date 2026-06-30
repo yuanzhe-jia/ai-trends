@@ -146,35 +146,6 @@ const getRecentTrends = async (days = 7) => {
   }
 };
 
-// 按需更新趋势数据：如果昨天没有数据，则抓取RSS并更新趋势
-const checkAndUpdateTrends = async () => {
-  try {
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = yesterday.toISOString().split('T')[0];
-    
-    const hasData = await Trend.hasTrendsForDate(yesterdayStr);
-    
-    if (!hasData) {
-      logger.info(`昨日(${yesterdayStr})无趋势数据，开始抓取RSS并更新`, 'TREND');
-      
-      // 动态导入 rssService 避免循环依赖
-      const rssService = require('./rssService');
-      await rssService.fetchAllRssFeeds();
-      await updateTrends();
-      
-      logger.info(`按需更新完成`, 'TREND');
-    } else {
-      logger.info(`昨日(${yesterdayStr})已有趋势数据，无需更新`, 'TREND');
-    }
-    
-    return await Trend.getRecentTrends(7);
-  } catch (error) {
-    logger.error(`按需更新趋势失败: ${error.message}`, 'TREND');
-    throw error;
-  }
-};
-
 const getTrendHistory = async (keyword, days = 30) => {
   try {
     const history = await Trend.getTrendHistory(keyword, days);
@@ -189,6 +160,5 @@ module.exports = {
   analyzeTrendsFromArticles,
   updateTrends,
   getRecentTrends,
-  checkAndUpdateTrends,
   getTrendHistory,
 };

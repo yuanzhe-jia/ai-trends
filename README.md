@@ -1,11 +1,11 @@
 # AI-Trends
 
-AI trend tracking from Chinese tech news.
+AI trends tracking from Chinese tech resources.
 
 ## Features
 
 - **Keyword Heatmap** - Visualize trending AI topics with heat visualization
-- **News Aggregation** - Automatically fetch RSS feeds from 12 Chinese tech media sources
+- **News Aggregation** - Automatically fetch RSS feeds from Chinese tech media sources
 - **Trend History** - 30-day trend charts to track topic popularity changes
 - **Scheduled Updates** - Daily automatic updates at 3:00 AM (UTC+8)
 - **Lightweight Storage** - SQLite database with zero configuration

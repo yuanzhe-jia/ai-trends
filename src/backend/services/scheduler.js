@@ -63,9 +63,16 @@ const checkAndCatchUpData = async () => {
 
 const startScheduler = async () => {
   await checkAndCatchUpData();
-  
+
+  const enabled = process.env.ENABLE_INTERNAL_SCHEDULER === 'true';
+
+  if (!enabled) {
+    logger.info('应用内定时任务已禁用（使用系统 cron 替代）', 'SCHEDULER');
+    return null;
+  }
+
   const schedule = require('node-schedule');
-  
+
   const job = schedule.scheduleJob({
     hour: 3,
     minute: 0,
@@ -75,9 +82,9 @@ const startScheduler = async () => {
     logger.info('触发每日定时任务 (北京时间凌晨3:00)', 'SCHEDULER');
     await runDailyUpdate();
   });
-  
+
   logger.info('定时任务已启动: 每日北京时间凌晨3:00自动更新', 'SCHEDULER');
-  
+
   return job;
 };
 
